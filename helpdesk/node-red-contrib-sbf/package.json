@@ -1,0 +1,35 @@
+{
+  "name": "node-red-contrib-sbf",
+  "version": "1.0.0",
+  "description": "A bot framework implementation",
+  "author": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "license": "ISC",
+  "dependencies": {
+    "botbuilder": "^3.2.3",
+    "lodash": "^4.16.1",
+    "redis": "^2.6.2",
+    "request": "^2.75.0",
+    "sentiment": "^2.1.0"
+  },
+  "node-red": {
+    "nodes": {
+      "bot-server": "nodes/bot-server/bot-server.js",
+      "start-intent-matcher": "nodes/start-intent-matcher/start-intent-matcher.js",
+      "default-intent-matcher": "nodes/default-intent-matcher/default-intent-matcher.js",
+      "end-intent-matcher": "nodes/end-intent-matcher/end-intent-matcher.js",
+      "entity-matcher": "nodes/entity-matcher/entity-matcher.js",
+      "composite-entity-matcher": "nodes/composite-entity-matcher/composite-entity-matcher.js",
+      "hierarchical-entity-matcher": "nodes/hierarchical-entity-matcher/hierarchical-entity-matcher.js",
+      "text-dialog": "nodes/text-dialog/text-dialog.js",
+      "prompt-dialog": "nodes/prompt-dialog/prompt-dialog.js",
+      "prompt-choice-dialog": "nodes/prompt-choice-dialog/prompt-choice-dialog.js",
+      "hero-card-dialog": "nodes/hero-card-dialog/hero-card-dialog.js",
+      "thumbnail": "nodes/thumbnail-dialog/thumbnail-dialog.js"
+    }
+  }
+}

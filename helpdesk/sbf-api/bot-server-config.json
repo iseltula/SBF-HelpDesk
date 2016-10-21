@@ -1,0 +1,30 @@
+{
+  "SBF-Mortgage": {
+    "name": "Mortgage Servicing Bot",
+    "uri": "sbf-mortgage",
+    "demos": {
+      "website": "https://webchat.botframework.com/embed/sbf-mortgage?s=20V0dL1ZO4M.cwA.nLM.jhxNkCnYzWzCQIMRxv0fk8DZiE_GNPdXQRLa36cWteA",
+      "skype": "https://join.skype.com/bot/0e68d7d0-ccf0-4892-b750-26ac72d74a37"
+    },
+    "microsoft": {
+      "appId": "0e68d7d0-ccf0-4892-b750-26ac72d74a37",
+      "appPassword": "vEKpAs0dsDxUz278dspjfRT",
+      "luis": {
+        "appId": "75681727-0362-4989-bd4a-b3526129dc38",
+        "ocpApimSubscriptionKey": "9c253e2cb21b42f880a48504f9918c65"
+      }
+    }
+  },
+  "helpdesk": {
+    "name": "Helpdesk Assistant",
+    "uri": "helpdesk",
+    "microsoft": {
+      "appId": "5ad0e68d-80cf-42ae-9fe8-ef52282d6506",
+      "appPassword": "NZq9RnDfpku9v13cW6ejKWV",
+      "luis": {
+        "appId": "93ae6ff8-2e9f-430c-9b1f-01237f377b8d",
+        "ocpApimSubscriptionKey": "b900d30b898945ab9f9982992ba24852"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+deploy_dev_aws_jenkins:
+ stage: build
+ environment: development
+ script:
+   # start build on jenkins
+  - curl $DEV_JENKINS_DEPLOY_URL$DEV_SBF_TAG
+ only:
+  - development
+
+deploy_prod_heroku:
+ stage: build
+ when: manual
+ script:
+   # not build yet
+   - curl $PROD_JENKINS_DEPLOY_URL
+ only:
+  - master

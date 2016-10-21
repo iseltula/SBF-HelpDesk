@@ -1,0 +1,179 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var cluster = require('cluster');
+var debug = require('debug')('sbf:server');
+var http = require('http');
+var RED = require('node-red');
+var path = require('path');
+var numCPUs = require('os').cpus().length;
+var pkg = require('../package.json');
+var redLOG = require('../logger/index.js');
+
+/**
+ * Get port from environment and store in Express.
+ */
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+if (!process.env.ISCLUSTER) {
+  startThread();
+} else {
+  if (cluster.isMaster) {
+    // Fork workers.
+    for (var i = 0; i < numCPUs; i++) {
+      cluster.fork();
+    }
+
+    // If a worker dies, log it to the console and start another worker.
+    cluster.on('exit', function(worker, code, signal) {
+      console.log('Worker ' + worker.process.pid + ' died.');
+      cluster.fork();
+    });
+
+    // Log when a worker starts listening
+    cluster.on('listening', function(worker, address) {
+      console.log('Worker started with PID ' + worker.process.pid + '.');
+    });
+
+  } else {
+    startThread();
+  }
+}
+
+function startThread() {
+
+  /**
+   * Create HTTP server.
+   */
+  var server = http.createServer(app);
+  var redSettings = {
+    logging:{
+      console:false,
+      bunyan:{
+        handler:redLOG(RED),
+        metrics:true
+      }
+    },
+    httpAdminRoot: process.env.NODE_RED_HTTPADMINROOT,
+    httpNodeRoot: process.env.NODE_RED_HTTPNODEROOT,
+    userDir: path.join(__dirname + '/../', '.nodered'),
+    flowFile:"flow_sbf.json",
+    //nodesDir: path.join(__dirname+'/../', '.nodered'),
+    functionGlobalContext: {
+      sbfServerConfig: require('../bot-server-config.json'),
+      server: server,
+      app: app,
+      env: process.env,
+    },
+    paletteCategories: [
+      'sbf-dialogs', 'SBF', 'config', 'subflows', 'input', 'output', 'function', 'social', 'storage', 'analysis', 'advanced'
+    ],
+    editorTheme: {
+      page: {
+        title: "Synechron Bot Framework",
+        favicon: "/absolute/path/to/theme/icon",
+        css: path.join(__dirname, '../public/stylesheets/theme.css')
+      },
+      header: {
+        title: "Bot Framework",
+        image: path.join(__dirname, '../public/images/ico.png'), // or null to remove image
+        url: "http://synechron.com" // optional url to make the header text/image a link to this url
+      },
+      /*deployButton: {
+        type: "simple",
+        label: "Save",
+        icon: "/absolute/path/to/deploy/button/image" // or null to remove image
+      },
+      menu: { // Hide unwanted menu items by id. see editor/js/main.js:loadEditor for complete list
+        "menu-item-import-library": false,
+        "menu-item-export-library": false,
+        "menu-item-keyboard-shortcuts": false,
+        "menu-item-help": {
+          label: "Alternative Help Link Text",
+          url: "http://example.com"
+        }
+      },
+      userMenu: false, // Hide the user-menu even if adminAuth is enabled
+      login: {
+        image: "/absolute/path/to/login/page/big/image" // a 256x256 image
+      }*/
+    }
+  };
+  RED.init(server, redSettings);
+  app.use(redSettings.httpAdminRoot, RED.httpAdmin);
+  app.use(redSettings.httpNodeRoot, RED.httpNode);
+  RED.start();
+
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
+
+
+  /**
+   * Event listener for HTTP server "error" event.
+   */
+
+  function onError(error) {
+    if (error.syscall !== 'listen') {
+      throw error;
+    }
+
+    var bind = typeof port === 'string' ?
+      'Pipe ' + port :
+      'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
+  }
+
+  /**
+   * Event listener for HTTP server "listening" event.
+   */
+
+  function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === 'string' ?
+      'pipe ' + addr :
+      'port ' + addr.port;
+    debug('Listening on ' + bind);
+  }
+}
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}

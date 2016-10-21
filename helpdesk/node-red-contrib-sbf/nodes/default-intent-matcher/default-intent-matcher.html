@@ -1,0 +1,41 @@
+<script type="text/javascript">
+  RED.nodes.registerType('default-intent-matcher', {
+    category: 'SBF',
+    color: '#9aafb3',
+    icon: 'inject.png',
+    outputs: 1,
+    defaults: {
+      botServer: {
+        value: '',
+        type: 'bot-server',
+        required: true
+      }
+    },
+    label: function() {
+      return 'default-intent-matcher'
+    }
+  });
+</script>
+<script type="text/x-red" data-template-name="default-intent-matcher">
+  <div class="form-row">
+    <label for="node-input-botServer">Bot Server</label>
+    <input type="text" id="node-input-botServer" placeholder="Bot Server" />
+  </div>
+</script>
+<script type="text/x-red" data-help-name="default-intent-matcher">
+  <p><strong>Purpose: </strong> </p>
+  <p><strong>Inputs: </strong> none</p>
+  <p><strong>Outputs: </strong> sets a new property to the message object</p>
+  <p><pre><code>node.send({
+      sbf: {
+        session: Object, // object of the Bot Framework session
+        botServer: {
+          bot: Object, // object of the Bot Framework Universal Bot
+          intent: Object, // object of the builder.IntentDialog for LUIS
+          connector: Object, // object of the builder.ChatConnector for listening to a URL
+        },
+        luisArgs: Object // object of the LUIS intent matching object
+      }
+    });</code></pre></p>
+  <p><strong>Quick Tips: </strong></p>
+</script>

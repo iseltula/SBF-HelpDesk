@@ -1,0 +1,98 @@
+<script type="text/javascript">
+  RED.nodes.registerType('hero-card-dialog', {
+    category: 'SBF',
+    color: '#f19774',
+    icon: 'bridge.png',
+    inputs: 1,
+    outputs: 1,
+    defaults: {
+      name: {
+        value: '',
+      },
+      imageuri: {
+        value: '',
+        required: true
+      },
+      title: {
+        value: '',
+        required: true
+      },
+      subtitle: {
+        value: ''
+      },
+      text: {
+        value: '',
+        required: true
+      },
+      tapUrl: {
+        value: ''
+      }
+    },
+    label: function() {
+      return this.name || 'hero-card-dialog';
+    },
+    labelStyle: function() {
+      return this.name === '' ? 'node_label_italic' : '';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="hero-card-dialog">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-imageuri">Image URI</label>
+    <input type="text" id="node-input-imageuri" placeholder="URI" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-title">Title</label>
+    <input type="text" id="node-input-title" placeholder="Title" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-subtitle">Sub Title</label>
+    <input type="text" id="node-input-subtitle" placeholder="Sub Title" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-text">Display Text</label>
+    <input type="text" id="node-input-text" placeholder="Text" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-tapUrl">Tap Url</label>
+    <input type="text" id="node-input-tapUrl" placeholder="Tap Url" />
+  </div>  
+</script>
+
+<script type="text/x-red" data-help-name="hero-card-dialog">
+  <p><strong>Purpose: </strong> to display a card with one big image.</p>
+  <p><strong>How to use: </strong></p>
+  <ul>
+    <li>Set the name of the dialog (Optional).</li>
+    <li>Set the image URI.</li>
+    <li>Set the Title of the card.</li>
+    <li>Set the Subtitles (Optional).</li>
+    <li>Set the display text.</li>
+    <li>Set the Url to which it should redirect on clicking the card (Optional).</li>
+  </ul>
+  <p><strong>Inputs: </strong> sbf object from the Intent Matcher and any result from previous dialogs.</p>
+  <p><strong>Outputs: </strong> sbf object.</p>
+  <p><pre><code>node.send({
+      sbf: {
+        session: Object, // object of the Bot Framework session
+        botServer: {
+          bot: Object, // object of the Bot Framework Universal Bot
+          intent: Object, // object of the builder.IntentDialog for LUIS
+          connector: Object, // object of the builder.ChatConnector for listening to a URL
+        },
+        luisArgs: Object // object of the LUIS intent matching object
+        results: {
+          response: String // response from previous dialog.
+        }
+    });</code></pre></p>
+  <p><strong>Quick Tips: </strong></p>
+  <ul>
+    <li>It is recommended to Deploy afer creating each dialog, to save the changes.</li>
+    <li>If when deploy an error is display. Just re-open the dialog and Save it again. </li>    
+  </ul>
+</script>

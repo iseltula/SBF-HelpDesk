@@ -1,0 +1,184 @@
+<script type="text/javascript">
+    RED.nodes.mixins = {};
+    var registerTypeClone = RED.nodes.registerType.bind(RED.nodes);
+    function applyMixin(options,mixinOptions) {
+        var tat = this;
+        for (var mixinOption in mixinOptions) {
+            var opt = mixinOptions[mixinOption];
+            if (typeof(opt) === "function") {
+                (function (key) {
+                    var onClone = options[key] ? options[key] : function () {
+                    };
+                    options[key] = function () {
+                        debugger;
+                        this.myProp = Date.now();
+                        mixinOptions[key].apply(this, arguments);
+                        return onClone.apply(this, arguments);
+                    }
+                })(mixinOption);
+            }
+            else if (typeof(opt) === "object") {
+                options[mixinOption] = Object.assign({}, options[mixinOption], opt);
+            }
+            else
+            {
+                options[mixinOption] = opt;
+            }
+        }
+    }
+    RED.nodes.registerType = function(name,options) {
+        if(options.mixins) {
+            for (var mixin in  options.mixins) {
+                var mixinData = options.mixins[mixin];
+                var foundMixin = RED.nodes.mixins[mixin];
+                if (foundMixin) {
+                    applyMixin(options, Object.assign({}, foundMixin,mixinData));
+                }
+            }
+        }
+        return registerTypeClone.apply(RED.nodes, arguments);
+    }
+</script>
+<script type="text/javascript">
+    RED.nodes.mixins.botPersonality = {
+        defaults: {
+            dialogs: {
+                value: [],
+                required: true,
+                validate: function (dialogs) {
+                    return dialogs && dialogs.filter(function (x) {
+                                return x.mood === "neutral";
+                            }).length > 0;
+                }
+            }
+        },
+        oneditprepare: function () {
+            var node = this;
+            var $dialogContainer = $(this._def.container || "#node-input-dialog-container");
+            if ($dialogContainer.length) {
+                var personality = [
+                    {mood: "neutral", display: "Neutral"},
+                    {mood: "positive", display: "Positive"},
+                    {mood: "negative", display: "Negative"}
+                ];
+                $dialogContainer.editableList({
+                    addItem: function (container, i, opt) {
+                        var row = $('<div/>', {
+                            class: "row-fluid"
+                        }).appendTo(container);
+
+                        var $messageTextField = $('<input/>', {
+                            class: "node-input-dialog-value span9",
+                            type: "text",
+                            placeholder: "Dialog"
+                        }).appendTo(row);
+
+                        var $select = $('<select/>', {
+                            class: "node-input-dialog-mood span3",
+                            type: "text",
+                            placeholder: "Select Mood"
+                        }).appendTo(row);
+
+                        personality.forEach(function (data) {
+                            var $option = $('<option value="' + data.mood + '">' + data.display + '</option>');
+                            if (data.mood === "neutral") {
+                                $option.attr('selected', 'selected');
+                            }
+                            $select.append($option);
+                        });
+                        if (!jQuery.isEmptyObject(opt) && opt.mood)
+                            $select.val(opt.mood)
+                        if (!jQuery.isEmptyObject(opt)) {
+                            $messageTextField.attr('value', opt.dialog);
+                        }
+                    },
+                    removeItem: function (opt) {
+                        var dialogs = $dialogContainer.editableList('items');
+                        dialogs.each(function (i) {
+                            $(this).find(".node-input-dialog-index").html(i + 1);
+                        });
+                    },
+                    removable: true
+                });
+                if (node.dialogs && node.dialogs.length > 0) {
+                    for (var mCount = 0; mCount < node.dialogs.length; mCount++) {
+                        $dialogContainer.editableList('addItem', node.dialogs[mCount]);
+                    }
+                } else {
+                    $dialogContainer.editableList('addItem', '');
+                }
+            }
+        },
+        oneditsave: function () {
+            var dialogs = $(this._def.container || "#node-input-dialog-container").editableList('items');
+            var node = this;
+            node.dialogs = [];
+            dialogs.each(function (i) {
+                var dialogText = $(this).find(".node-input-dialog-value").val();
+                var mood = $('.node-input-dialog-mood', this).val();
+                var data = {};
+                if (dialogText) {
+                    data.dialog = dialogText;
+                }
+                if (dialogText && mood) {
+                    data.mood = mood
+                }
+                if (!jQuery.isEmptyObject(data))
+                    node.dialogs.push(data);
+            });
+        }
+    };
+</script>
+<script type="text/javascript">
+  RED.nodes.registerType('bot-server', {
+    category: 'config',
+    color: '#F8DF2F',
+    defaults: {
+      name: {
+        value: '',
+        required: true
+      }
+    },
+    icon: 'white-globe.png',
+    label: function() {
+      return this.name || 'bot-server';
+    },
+    labelStyle: function() {
+      return this.name === '' ? 'node_label_italic' : '';
+    },
+    oneditprepare: function() {
+      var args = {
+        url: RED.settings.httpNodeRoot + '/sbf/bot-servers'
+      }
+      $.ajax(args)
+        .done(function(data) {
+          var item, selected = '';
+          for (var key in data) {
+            item = data[key];
+            if (this.name === key) {
+              selected = ' selected';
+            }
+            $('#node-config-input-name').append('<option value="' + key + '"' + selected + '>' + item.name + '</option>');
+          }
+        })
+        .fail(function(err) {
+          $('#node-config-input-name').append('<option>' + err.message || err + '</option>');
+        });
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="bot-server">
+  <div class="form-row">
+    <label for="node-config-input-name">Server</label>
+    <select type="text" id="node-config-input-name" />
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="bot-server">
+  <p><strong>Purpose: </strong></p>
+  <p><strong>How to use: </strong></p>
+  <p><strong>Inputs: </strong></p>
+  <p><strong>Outputs: </strong> None</p>
+  <p><strong>Quick Tips: </strong></p>
+</script>
